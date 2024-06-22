@@ -25,4 +25,7 @@
 
 ## Project Summary
 
-This is a summary of the project!
+Our project is an educational platform designed to simulate the stock market using live data. Most investment apps are confusing and have far too many features for a novice investor. We intend to make a simple yet easy-to-use paper trading app that anyone can get on and practice investing in a risk-free way.
+
+Users are provided with a fixed amount of virtual dollars to invest in stocks, allowing them to buy and sell shares based on actual market conditions. Once users are logged in they will have the ability to create several portfolios to try various investment strategies. Within each portfolio, the stocks they own will be displayed along with percent change and dollar change. There will also be a transaction log where users can see the prices at which they’ve bought and sold various stocks.
+
