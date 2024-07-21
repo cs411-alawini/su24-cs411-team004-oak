@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        .button-space {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to TradingPaper</h1>
+    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Login</button>
+    <button type="button" onclick="window.location.href='{{ url_for('signup') }}'">Sign Up</button>
+</body>
+</html>
