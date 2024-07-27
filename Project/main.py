@@ -169,6 +169,28 @@ def get_transaction_data(portfolioid):
             connection.close()
     return False
 
+def get_watchlist_data(portfolioid):
+    connection = None
+    try:
+        watchlist_data = []
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT w.StockSymbol
+            FROM Portfolios p JOIN Watchlist w ON p.PortfolioID=w.PortfolioID
+            WHERE p.PortfolioID = %s
+        """, (portfolioid,))
+        for row in cursor:
+            watchlist_data.append(row)
+        return watchlist_data
+    except Error as e:
+        print(f"GWD Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
 """random user to test with"""
 # user: aaron16
 # password: ho^_7BnNS^
@@ -226,7 +248,9 @@ def portfolio_page(portfolioid):
     # userid = session.user
     transaction_data = get_transaction_data(portfolioid)
     portfolio_type = get_portfolio_type(portfolioid)
-    return render_template('portfolio.html', transactions=transaction_data, portfolio=portfolio_type)
+    watchlist_data = get_watchlist_data(portfolioid)
+    print(watchlist_data)
+    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_type)
 
 
 # https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
