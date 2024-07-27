@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 from mysql.connector import Error
+import sys
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #DO NOT DELETER: need this to work for some reason
 
@@ -24,7 +25,7 @@ def get_db_connection():
 def index():
     return render_template('index.html')
 
-
+# Checks whether the userid and password are valid
 def valid_login(userid, password):
     connection = None
     try:
@@ -38,14 +39,14 @@ def valid_login(userid, password):
         user = cursor.fetchone()
         return user
     except Error as e:
-        print(f"Error: {e}")
+        print(f"VL Error: {e}")
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
     return False
 
-
+# Checks if userid is in users table
 def user_exist(userid):
     connection = None
     try:
@@ -58,13 +59,14 @@ def user_exist(userid):
                 """, (userid,))
         return cursor.fetchone()
     except Error as e:
-        print(f"Error: {e}")
+        print(f"UE Error: {e}")
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
     return False
 
+# adds new user profile to users table
 def add_user(userid, password, address, phonenumber, fullname):
     connection = None
     try:
@@ -76,13 +78,37 @@ def add_user(userid, password, address, phonenumber, fullname):
                 """, (userid, password, address, phonenumber, fullname))
         return True
     except Error as e:
-        print(f"Error: {e}")
+        print(f"AU Error: {e}")
     finally:
         if connection and connection.is_connected():
             connection.commit()
             cursor.close()
             connection.close()
     return False
+
+def get_portfolio_data(userid):
+    connection = None
+    try:
+        portfolio_data = []
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT PortfolioType, PortfolioBalance
+            FROM Users JOIN UserPortfolio ON UserID=UsersUserID 
+                       JOIN Portfolios ON PortfolioID=PortfoliosPortfolioID
+            WHERE UserID = %s
+        """, (userid,))
+        for row in cursor:
+            portfolio_data.append(row)
+        return portfolio_data
+    except Error as e:
+        print(f"GPD Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
 
 """random user to test with"""
 # user: adam44
@@ -118,19 +144,19 @@ def signup():
             phonenumber = request.form['phonenumber']
             fullname = request.form['fullname']
             if add_user(userid, password, address, phonenumber, fullname):
-                # user = user_exist(userid)
-                # print(user['UserID'])
-                # session['user'] = user['UserID']
                 return redirect(url_for('login', msg=''))
     return render_template('signup.html', msg=erMsg)
 
-@app.route('/dashboard')
-@app.route('/dashboard/<username>/')
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+@app.route('/dashboard/<username>/', methods=['GET', 'POST'])
 def dashboard(username):
-    if 'user' in session:
-        return f"Welcome {session['user']}!"
-    else:
+    portfolio_data = []
+    if 'user' not in session:
         return redirect(url_for('login'))
+    userid = session['user']
+    portfolio_data = get_portfolio_data(userid)
+    return render_template('dash.html', portfolios=portfolio_data, username=username)
     
 # @app.route('/db-test')
 # def db_test():

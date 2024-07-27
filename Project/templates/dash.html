@@ -8,11 +8,40 @@
         .button-space {
             margin-right: 10px;
         }
+        /* table, th, td {
+            border: 1px solid black;
+        } */
     </style>
 </head>
 <body>
-    <h1>Welcome to Dashboard</h1>
-    <button type="button" onclick="window.location.href='{{ url_for('index') }}'" class="button-space">Back</button>
-
+    {% if username %}
+        <h1>Welcome {{username}}</h1>
+    {% else %}
+        <h1>Welcome to Dashboard</h1>
+    {%endif%}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>PortfolioType</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if portfolios %}
+                {% for portfolio in portfolios%}
+                <tr>
+                    <td>{{ portfolio.PortfolioType }}</td>
+                    <td>{{ portfolio.PortfolioBalance }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="3">No portfolios found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Back</button>
+    
 </body>
 </html>
