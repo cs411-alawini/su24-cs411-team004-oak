@@ -93,7 +93,7 @@ def get_portfolio_data(userid):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT PortfolioType, PortfolioBalance
+            SELECT PortfolioID, PortfolioType, PortfolioBalance
             FROM Users JOIN UserPortfolio ON UserID=UsersUserID 
                        JOIN Portfolios ON PortfolioID=PortfoliosPortfolioID
             WHERE UserID = %s
@@ -109,10 +109,69 @@ def get_portfolio_data(userid):
             connection.close()
     return False
 
+def get_portfolio_type(portfolioid):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT PortfolioType
+            FROM Portfolios
+            WHERE PortfolioID = %s
+        """, (portfolioid,))
+        return cursor.fetchone()
+    except Error as e:
+        print(f"GPT Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
+def get_fullname(userid):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT Fullname
+            FROM Users
+            WHERE UserID = %s
+        """, (userid,))
+        return cursor.fetchone()
+    except Error as e:
+        print(f"GF Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
+def get_transaction_data(portfolioid):
+    connection = None
+    try:
+        transaction_data = []
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT CurrentlyActive, StockSymbol, NumShares, PurchasePrice, DateTime
+            FROM Portfolios JOIN Transactions ON PortfolioID=PortfoliosPortfolioID
+            WHERE PortfolioID = %s
+        """, (portfolioid,))
+        for row in cursor:
+            transaction_data.append(row)
+        return transaction_data
+    except Error as e:
+        print(f"GPD Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
 
 """random user to test with"""
-# user: adam44
-# password: (%L45Ka#+4
+# user: aaron16
+# password: ho^_7BnNS^
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erMsg = ''
@@ -122,7 +181,7 @@ def login():
         user = valid_login(userid,password)
         if user:
             session['user'] = user['UserID']
-            return redirect(url_for('dashboard', username = user['FullName']))
+            return redirect(url_for('dashboard', userid = user['UserId']))
         else:
             if user_exist(userid):
                 erMsg = "Login failed: Incorrect password"
@@ -148,15 +207,33 @@ def signup():
     return render_template('signup.html', msg=erMsg)
 
 
-@app.route('/dashboard', methods=['GET', 'POST'])
-@app.route('/dashboard/<username>/', methods=['GET', 'POST'])
-def dashboard(username):
+@app.route('/dashboard', methods=['GET'])
+@app.route('/dashboard/<userid>/', methods=['GET'])
+def dashboard(userid):
     portfolio_data = []
     if 'user' not in session:
         return redirect(url_for('login'))
     userid = session['user']
     portfolio_data = get_portfolio_data(userid)
-    return render_template('dash.html', portfolios=portfolio_data, username=username)
+    fullname = get_fullname(userid)
+    return render_template('dash.html', portfolios=portfolio_data, fullname=fullname['Fullname'])
+
+
+@app.route('/portfolio/<portfolioid>', methods=['GET'])
+def portfolio_page(portfolioid):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    # userid = session.user
+    transaction_data = get_transaction_data(portfolioid)
+    portfolio_type = get_portfolio_type(portfolioid)
+    return render_template('portfolio.html', transactions=transaction_data, portfolio=portfolio_type)
+
+
+# https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
+# @app.route("/logout")
+# def logout():
+#     session["name"] = None
+#     return redirect("/")
     
 # @app.route('/db-test')
 # def db_test():

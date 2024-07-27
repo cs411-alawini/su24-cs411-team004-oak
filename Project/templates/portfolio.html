@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {%if portfolio%}
+        <title>{{portfolio.PortfolioType}}</title>
+    {%else%}
+        <title>Portfolio</title>
+    {%endif%}
+    <style>
+        .button-space {
+            margin-right: 10px;
+        }
+        /* table, th, td {
+            border: 1px solid black;
+        } */
+    </style>
+</head>
+<body>
+    <h1>Current Positions</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Stock</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Bought</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%if transactions%}
+                {% for data in transactions%}
+                    {% if data.CurrentlyActive %}
+                        <tr>
+                            <td>{{ data.StockSymbol }}</td>
+                            <td>{{ data.NumShares }}</td>
+                            <td>{{ data.PurchasePrice }}</td>
+                            <td>{{ data.DateTime }}</td>
+                        </tr>
+                    {%endif%}
+                {%endfor%}
+                {%else%}
+                <tr>
+                    <td colspan="3">No transactions made.</td>
+                </tr>
+            {%endif%}
+        </tbody>
+    </table>
+    <session class="user">
+        <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
+    </session>
+    
+</body>
+</html>
