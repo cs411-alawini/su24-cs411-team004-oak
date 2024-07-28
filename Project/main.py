@@ -214,15 +214,17 @@ def yfinance_data(array_of_stock_dicts):
         else:
             #gets only the adjusted close
             watchlist_prices = data['Adj Close'].iloc[-1]
-            watchlist_price_dict = watchlist_prices.to_dict()
 
-            #loops through array of stocks to assign values to corresponding stock in the dictionary rounded to 2 decimals
-            for stock_dict in array_of_stock_dicts:
-                current_stock = stock_dict['StockSymbol']
-                stock_dict['CurrentPrice'] = "{:.2f}".format(watchlist_price_dict.get(current_stock))
-
-            # print("after changes!!")
-            # print(array_of_stock_dicts)
+            #seperate logic for yfinance API 
+            #when one only one stock symbol is requested it does not return a data frame, only the price itself
+            if len(stock_symbols) == 1:
+                array_of_stock_dicts[0]['CurrentPrice'] = "{:.2f}".format(watchlist_prices)
+            else: 
+                watchlist_price_dict = watchlist_prices.to_dict()
+                #loops through array of stocks to assign values to corresponding stock in the dictionary rounded to 2 decimals
+                for stock_dict in array_of_stock_dicts:
+                    current_stock = stock_dict['StockSymbol']
+                    stock_dict['CurrentPrice'] = "{:.2f}".format(watchlist_price_dict.get(current_stock))
 
     except Exception as e:
         print("Error with yfinance API:", str(e))
