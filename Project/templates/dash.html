@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
+        .balance {
+            margin-top: 10px;
+            text-align: left;
+            width: 50%;
+        }
         .button-space {
             margin-right: 10px;
         }
@@ -16,6 +21,12 @@
     {% else %}
         <h1>Welcome to Dashboard</h1>
     {%endif%}
+
+    <fieldset class="balance">
+        <legend>Total Balance</legend>
+        <h2>${{dbalance}}</h2>
+    </fieldset>
+
     <table border="1">
         <thead>
             <tr>
@@ -38,8 +49,7 @@
             {% endif %}
         </tbody>
     </table>
-    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Back</button>
-    <!-- Make button LOG OUT. have to make session['user'] =  None -->
+    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
     
 </body>
 </html>

@@ -4,6 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 import sys
 import yfinance as yf
+from decimal import Decimal
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #DO NOT DELETER: need this to work for some reason
 
@@ -161,7 +162,6 @@ def get_transaction_data(portfolioid):
         """, (portfolioid,))
         for row in cursor:
             transaction_data.append(row)
-        print(transaction_data)
         yfinance_data(transaction_data)
 
         return transaction_data
@@ -186,9 +186,6 @@ def get_watchlist_data(portfolioid):
         """, (portfolioid,))
         for row in cursor:
             watchlist_data.append(row)
-
-        print(watchlist_data)
-
         yfinance_data(watchlist_data)
 
         return watchlist_data
@@ -218,23 +215,38 @@ def yfinance_data(array_of_stock_dicts):
             #seperate logic for yfinance API 
             #when one only one stock symbol is requested it does not return a data frame, only the price itself
             if len(stock_symbols) == 1:
-                array_of_stock_dicts[0]['CurrentPrice'] = "{:.2f}".format(watchlist_prices)
+                array_of_stock_dicts[0]['CurrentPrice'] = Decimal("{:.2f}".format(watchlist_prices))
             else: 
                 watchlist_price_dict = watchlist_prices.to_dict()
                 #loops through array of stocks to assign values to corresponding stock in the dictionary rounded to 2 decimals
                 for stock_dict in array_of_stock_dicts:
                     current_stock = stock_dict['StockSymbol']
-                    stock_dict['CurrentPrice'] = "{:.2f}".format(watchlist_price_dict.get(current_stock))
+                    stock_dict['CurrentPrice'] = Decimal("{:.2f}".format(watchlist_price_dict.get(current_stock)))
 
     except Exception as e:
         print("Error with yfinance API:", str(e))
 
+def get_portfolio_balance(transactions):
+    total_balance = 0
+    if(len(transactions) > 0):
+        for transaction in transactions:
+            if(transaction['CurrentlyActive']):
+                total_balance += transaction['NumShares'] * transaction['CurrentPrice']
+    return total_balance
+
+def get_dashboard_balance(portfolios):
+    total_balance = 0
+    if(len(portfolios) > 0):
+        for portfolio in portfolios:
+            total_balance += portfolio['PortfolioBalance']
+    return total_balance
 
 """random user to test with"""
 # user: aaron16
 # password: ho^_7BnNS^
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    session['user']=None
     erMsg = ''
     if request.method == 'POST':
         userid = request.form['userid']
@@ -277,7 +289,8 @@ def dashboard(userid):
     userid = session['user']
     portfolio_data = get_portfolio_data(userid)
     fullname = get_fullname(userid)
-    return render_template('dash.html', portfolios=portfolio_data, fullname=fullname['Fullname'])
+    dbalance = get_dashboard_balance(portfolio_data)
+    return render_template('dash.html', portfolios=portfolio_data, fullname=fullname['Fullname'], dbalance=dbalance)
 
 
 @app.route('/portfolio/<portfolioid>', methods=['GET'])
@@ -285,9 +298,11 @@ def portfolio_page(portfolioid):
     if 'user' not in session:
         return redirect(url_for('login'))
     transaction_data = get_transaction_data(portfolioid)
+    print(transaction_data)
     portfolio_type = get_portfolio_type(portfolioid)
     watchlist_data = get_watchlist_data(portfolioid)
-    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_type)
+    pbalance = get_portfolio_balance(transaction_data)
+    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_type, pbalance=pbalance)
 
 @app.route('/transactions/<portfolioid>', methods=['GET'])
 def transaction_page(portfolioid):
