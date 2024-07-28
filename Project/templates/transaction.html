@@ -43,7 +43,7 @@
         </tbody>
     </table>
     <button type="button" onclick="window.location.href='{{ url_for('portfolio_page',portfolioid=portfolio.PortfolioID) }}'" class="button-space">Back</button>
-    <!-- Make button LOG OUT. have to make session['user'] =  None -->
+    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
     
 </body>
 </html>

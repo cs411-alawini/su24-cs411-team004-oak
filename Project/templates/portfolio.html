@@ -9,6 +9,14 @@
         <title>Portfolio</title>
     {%endif%}
     <style>
+        .right {
+            text-align: right;
+        }
+        .balance {
+            margin-top: 10px;
+            text-align: left;
+            width: 50%;
+        }
         .button-space {
             margin-right: 10px;
         }
@@ -19,6 +27,11 @@
         <a href = "{{url_for ('transaction_page', portfolioid=portfolio.PortfolioID)}}">Transactions</a>
     </nav>
 
+    <fieldset class="balance">
+        <legend>Portfolio Balance</legend>
+        <h2>${{pbalance}}</h2>
+    </fieldset>
+
     <article>
         <h1>Current Positions</h1>
         <table border="1">
@@ -26,7 +39,7 @@
                 <tr>
                     <th>Stock</th>
                     <th>Shares</th>
-                    <th>Price</th>
+                    <th>Purchase Price</th>
                     <th>Date Bought</th>
                     <th>Current Price</th>
                     <th>Sell</th>
@@ -36,12 +49,12 @@
                 {%if transactions%}
                     {% for data in transactions%}
                         {% if data.CurrentlyActive %}
-                            <tr>
+                            <tr data-shares="{{ data.NumShares }}" data-price="{{ data.PurchasePrice }}">
                                 <td>{{ data.StockSymbol }}</td>
                                 <td>{{ data.NumShares }}</td>
-                                <td>{{ data.PurchasePrice }}</td>
+                                <td class="right">{{ data.PurchasePrice }}</td>
                                 <td>{{ data.DateTime }}</td>
-                                <td>{{ data.CurrentPrice }}</td>
+                                <td class="right">{{ data.CurrentPrice }}</td>
                                 <td><button type="button">Sell Shares</button>
                             </tr>
                         {%endif%}
@@ -76,6 +89,7 @@
     <session class="user">
         <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
     </session>
+    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
     
 </body>
 </html>
