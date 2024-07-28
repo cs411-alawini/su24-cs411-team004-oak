@@ -11,24 +11,28 @@
     </style>
 </head>
 <body>
-    {% if fullname %}
-        <h1>Welcome {{fullname}}</h1>
+    {% if portfolio %}
+        <h1>{{portfolio.PortfolioType}} Transaction</h1>
     {% else %}
-        <h1>Welcome to Dashboard</h1>
+        <h1>Transaction History</h1>
     {%endif%}
     <table border="1">
         <thead>
             <tr>
-                <th>PortfolioType</th>
-                <th>Balance</th>
+                <th>Stock</th>
+                <th>Number of Shares</th>
+                <th>Price</th>
+                <th>Date Bought</th>
             </tr>
         </thead>
         <tbody>
-            {% if portfolios %}
-                {% for portfolio in portfolios%}
+            {% if transactions %}
+                {% for transaction in transactions%}
                 <tr>
-                    <td><a href="{{ url_for('portfolio_page', portfolioid=portfolio.PortfolioID) }}">{{ portfolio.PortfolioType }}</a></td>
-                    <td>{{ portfolio.PortfolioBalance }}</td>
+                    <td>{{ transaction.StockSymbol }}</a></td>
+                    <td>{{ transaction.NumShares }}</td>
+                    <td>{{ transaction.PurchasePrice }}</td>
+                    <td>{{ transaction.DateTime }}</td>
                 </tr>
                 {% endfor %}
             {% else %}
@@ -38,7 +42,7 @@
             {% endif %}
         </tbody>
     </table>
-    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Back</button>
+    <button type="button" onclick="window.location.href='{{ url_for('portfolio_page',portfolioid=portfolio.PortfolioID) }}'" class="button-space">Back</button>
     <!-- Make button LOG OUT. have to make session['user'] =  None -->
     
 </body>

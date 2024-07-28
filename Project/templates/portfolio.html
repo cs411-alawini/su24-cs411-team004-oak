@@ -12,12 +12,13 @@
         .button-space {
             margin-right: 10px;
         }
-        /* table, th, td {
-            border: 1px solid black;
-        } */
     </style>
 </head>
 <body>
+    <nav>
+        <a href = "{{url_for ('transaction_page', portfolioid=portfolio.PortfolioID)}}">Transactions</a>
+    </nav>
+
     <article>
         <h1>Current Positions</h1>
         <table border="1">
@@ -26,7 +27,7 @@
                     <th>Stock</th>
                     <th>Shares</th>
                     <th>Price</th>
-                    <th>Bought</th>
+                    <th>Date Bought</th>
                     <th>Sell</th>
                 </tr>
             </thead>

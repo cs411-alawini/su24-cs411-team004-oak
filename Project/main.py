@@ -115,7 +115,7 @@ def get_portfolio_type(portfolioid):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT PortfolioType
+            SELECT PortfolioID, PortfolioType
             FROM Portfolios
             WHERE PortfolioID = %s
         """, (portfolioid,))
@@ -203,7 +203,7 @@ def login():
         user = valid_login(userid,password)
         if user:
             session['user'] = user['UserID']
-            return redirect(url_for('dashboard', userid = user['UserId']))
+            return redirect(url_for('dashboard', userid = user['UserID']))
         else:
             if user_exist(userid):
                 erMsg = "Login failed: Incorrect password"
@@ -245,12 +245,18 @@ def dashboard(userid):
 def portfolio_page(portfolioid):
     if 'user' not in session:
         return redirect(url_for('login'))
-    # userid = session.user
     transaction_data = get_transaction_data(portfolioid)
     portfolio_type = get_portfolio_type(portfolioid)
     watchlist_data = get_watchlist_data(portfolioid)
-    print(watchlist_data)
     return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_type)
+
+@app.route('/transactions/<portfolioid>', methods=['GET'])
+def transaction_page(portfolioid):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    transaction_data = get_transaction_data(portfolioid)
+    portfolio_type = get_portfolio_type(portfolioid)
+    return render_template('transaction.html', transactions=transaction_data, portfolio=portfolio_type)
 
 
 # https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
