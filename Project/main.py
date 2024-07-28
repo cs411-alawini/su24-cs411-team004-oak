@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 from mysql.connector import Error
 import sys
+import yfinance as yf
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #DO NOT DELETER: need this to work for some reason
 
@@ -160,6 +161,9 @@ def get_transaction_data(portfolioid):
         """, (portfolioid,))
         for row in cursor:
             transaction_data.append(row)
+        print(transaction_data)
+        yfinance_data(transaction_data)
+
         return transaction_data
     except Error as e:
         print(f"GPD Error: {e}")
@@ -182,6 +186,11 @@ def get_watchlist_data(portfolioid):
         """, (portfolioid,))
         for row in cursor:
             watchlist_data.append(row)
+
+        print(watchlist_data)
+
+        yfinance_data(watchlist_data)
+
         return watchlist_data
     except Error as e:
         print(f"GWD Error: {e}")
@@ -190,6 +199,34 @@ def get_watchlist_data(portfolioid):
             cursor.close()
             connection.close()
     return False
+
+def yfinance_data(array_of_stock_dicts):
+
+    stock_symbols = []
+    for stock_dict in array_of_stock_dicts:
+        stock_symbols.append(stock_dict['StockSymbol'])
+
+    try:
+        data = yf.download(stock_symbols, period="1d", interval="1m")
+
+        if data.empty:
+            print("No data")
+        else:
+            #gets only the adjusted close
+            watchlist_prices = data['Adj Close'].iloc[-1]
+            watchlist_price_dict = watchlist_prices.to_dict()
+
+            #loops through array of stocks to assign values to corresponding stock in the dictionary rounded to 2 decimals
+            for stock_dict in array_of_stock_dicts:
+                current_stock = stock_dict['StockSymbol']
+                stock_dict['CurrentPrice'] = "{:.2f}".format(watchlist_price_dict.get(current_stock))
+
+            # print("after changes!!")
+            # print(array_of_stock_dicts)
+
+    except Exception as e:
+        print("Error with yfinance API:", str(e))
+
 
 """random user to test with"""
 # user: aaron16

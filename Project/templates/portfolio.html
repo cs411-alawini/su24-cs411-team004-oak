@@ -28,6 +28,7 @@
                     <th>Shares</th>
                     <th>Price</th>
                     <th>Date Bought</th>
+                    <th>Current Price</th>
                     <th>Sell</th>
                 </tr>
             </thead>
@@ -40,6 +41,7 @@
                                 <td>{{ data.NumShares }}</td>
                                 <td>{{ data.PurchasePrice }}</td>
                                 <td>{{ data.DateTime }}</td>
+                                <td>{{ data.CurrentPrice }}</td>
                                 <td><button type="button">Sell Shares</button>
                             </tr>
                         {%endif%}
@@ -64,7 +66,7 @@
                     {% for item in watchlist %}
                     <tr>
                         <td>{{item.StockSymbol}}</td>
-                        <td></td>
+                        <td>{{item.CurrentPrice}}</td>
                     </tr>
                     {%endfor%}
                 {%endif%}
