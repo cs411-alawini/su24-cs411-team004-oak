@@ -408,6 +408,15 @@ def portfolio_page(portfolioid):
     print(portfolio_data)
     return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance)
 
+@app.route('/add_watchlist', methods=['GET', 'POST'])
+def add_watchlist():
+    if request.method == 'POST':
+        stock_symbol = request.form['stock_symbol']
+        exist, name = get_stock_name_from_symbol(stock_symbol)
+        if exist:
+            
+    return render_template('create_portfolio.html')
+
 @app.route('/transactions/<portfolioid>', methods=['GET'])
 def transaction_page(portfolioid):
     if 'user' not in session:
