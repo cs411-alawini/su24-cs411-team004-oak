@@ -373,7 +373,8 @@ def create_portfolio():
     erMsg = ''
     if request.method == 'POST':
         portfolio_name = request.form['portfolio_name']
-        add_portfolio(portfolio_name)
+        if add_portfolio(portfolio_name):
+                return redirect(url_for('dashboard', userid=session['user']))
     return render_template('create_portfolio.html', msg=erMsg)
 
 
