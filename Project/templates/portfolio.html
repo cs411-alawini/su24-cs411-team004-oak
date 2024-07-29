@@ -28,8 +28,10 @@
     </nav>
 
     <fieldset class="balance">
-        <legend>Portfolio Balance</legend>
-        <h2>${{pbalance}}</h2>
+        <legend>Balances</legend>
+        <h2>Stock Value: ${{sbalance}}</h2>
+        <h2>Cash Balance: ${{portfolio.PortfolioBalance}}</h2>
+        <h2>Total: ${{portfolio.PortfolioBalance+sbalance}}</h2>
     </fieldset>
 
     <article>
@@ -61,7 +63,7 @@
                                         <input type="hidden" name="transaction_id" value="{{ data.TransactionID}}">
                                         <input type="hidden" name="stock_current_price" value="{{ data.CurrentPrice}}">
                                         <input type="hidden" name="num_shares" value="{{ data.NumShares}}">
-                                        <input type="hidden" name="portfolio_balance" value="{{ pbalance }}">
+                                        <input type="hidden" name="portfolio_balance" value="{{ portfolio.PortfolioBalance }}">
                                         <button type="submit">Sell Shares</button>                                    
                                     </form>
                             </tr>

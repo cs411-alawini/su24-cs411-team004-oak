@@ -161,7 +161,7 @@ def get_portfolio_type(portfolioid):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT PortfolioID, PortfolioType
+            SELECT PortfolioID, PortfolioType, PortfolioBalance
             FROM Portfolios
             WHERE PortfolioID = %s
         """, (portfolioid,))
@@ -270,7 +270,7 @@ def yfinance_data(array_of_stock_dicts):
     except Exception as e:
         print("Error with yfinance API:", str(e))
 
-def get_portfolio_balance(transactions):
+def get_stock_value_balance(transactions):
     total_balance = 0
     if(len(transactions) > 0):
         for transaction in transactions:
@@ -343,10 +343,11 @@ def portfolio_page(portfolioid):
         return redirect(url_for('login'))
     transaction_data = get_transaction_data(portfolioid)
     # print(transaction_data)
-    portfolio_type = get_portfolio_type(portfolioid)
+    portfolio_data = get_portfolio_type(portfolioid)
     watchlist_data = get_watchlist_data(portfolioid)
-    pbalance = get_portfolio_balance(transaction_data)
-    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_type, pbalance=pbalance)
+    sbalance = get_stock_value_balance(transaction_data)
+    print(portfolio_data)
+    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance)
 
 @app.route('/transactions/<portfolioid>', methods=['GET'])
 def transaction_page(portfolioid):
