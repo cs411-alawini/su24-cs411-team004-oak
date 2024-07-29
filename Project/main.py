@@ -111,7 +111,7 @@ def add_portfolio(portfolio_name):
 
         return True
     except Error as e:
-        print(f"AU Error: {e}")
+        print(f"AP Error: {e}")
     finally:
         if connection and connection.is_connected():
             connection.commit()
@@ -152,7 +152,7 @@ def remove_from_watch(portfolioid, stocksymbol):
         print("watch removed")
         return True
     except Error as e:
-        print(f"Sell Stock Error: {e}")
+        print(f"Watchlist Remove Error: {e}")
     finally:
         if connection and connection.is_connected():
             connection.commit()
