@@ -469,8 +469,97 @@ def remove_watch():
         print(f"{portfolio_id=}")
         remove_from_watch(portfolio_id, stock_symbol)
 
-    return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
+
+@app.route('/portfolio/<portfolioid>/buy', methods=['GET', 'POST'])
+def buy_stock(portfolioid):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    stock_name = ''
+    stock_name = Decimal(0)
+
+    if request.method == 'POST':
+        if 'confirm_stock' in request.form:
+            stock_symbol = request.form.get('stock_symbol')
+
+            exists, stock_name = get_stock_name_from_symbol(stock_symbol)
+
+            if exists:
+                current_price = get_stock_current_price(stock_symbol)
+            
+
+            print("confirm stock")
+        elif 'calculate_price' in request.form:
+            print("calc price")
+        elif 'place_order' in request.form:
+            print("place order")
+
+    return render_template('buy_stock.html', portfolioid=portfolioid, msg=stock_name, stock_price=current_price)
+
+def get_stock_current_price(stock_symbol):
+    try:
+        data = yf.download(stock_symbol, period="1d", interval="1m")
+
+        if data.empty:
+            print("No data")
+        else:
+            #gets only the adjusted close
+            watchlist_prices = data['Adj Close'].iloc[-1]
+            current_price = Decimal("{:.2f}".format(watchlist_prices))
+    
+        return current_price
+    except Exception as e:
+        print("Error with yfinance API:", str(e))
+
+
+
+
+
+
+def get_stock_name_from_symbol(stock_symbol):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                    SELECT Name
+                    FROM Companies
+                    WHERE StockSymbol = %s
+                """, (stock_symbol,))
+        stock_name = cursor.fetchone()
+        if stock_name:
+            return (True, stock_name[0])
+        else:
+            return (False, "Stock not in S&P 500")
+    except Error as e:
+        print(f"get stock name from symbol Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+
+# https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
+# @app.route("/logout")
+# def logout():
+#     session["name"] = None
+#     return redirect("/")
+    
+# @app.route('/db-test')
+# def db_test():
+#     connection = None
+#     try:
+#         connection = get_db_connection()
+#         if connection.is_connected():
+#             db_info = connection.get_server_info()
+#             return f'Connected to MySQL database... MySQL Server version: {db_info}'
+#     except Error as e:
+#         return f'Error while connecting to MySQL: {e}'
+#     finally:
+#         if connection and connection.is_connected():
+#             connection.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
