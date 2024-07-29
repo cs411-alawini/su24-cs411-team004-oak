@@ -45,6 +45,7 @@
                     <th>Date Bought</th>
                     <th>Current Price</th>
                     <th>Sell</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -64,8 +65,9 @@
                                         <input type="hidden" name="stock_current_price" value="{{ data.CurrentPrice}}">
                                         <input type="hidden" name="num_shares" value="{{ data.NumShares}}">
                                         <input type="hidden" name="portfolio_balance" value="{{ portfolio.PortfolioBalance }}">
-                                        <button type="submit">Sell Shares</button>                                    
+                                        <button type="submit" name="action" value="sell">Sell Shares</button>                                    
                                     </form>
+                                </td>
                             </tr>
                         {%endif%}
                     {%endfor%}
@@ -85,6 +87,7 @@
                 <th>Price</th>
                 <th>Hi</th>
                 <th>Low</th>
+                <th></th>
             </thead>
             <tbody>
                 {% if watchlist %}
@@ -92,6 +95,15 @@
                     <tr>
                         <td>{{item.StockSymbol}}</td>
                         <td>{{item.CurrentPrice}}</td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <form action="{{ url_for('remove_watch') }}" method="post">
+                                <input type="hidden" name="stock_symbol" value="{{ item.StockSymbol }}">
+                                <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
+                                <button type="submit" name="action" value="remove">Remove</button>                                                                       
+                            </form>
+                        </td>
                     </tr>
                     {%endfor%}
                 {%endif%}

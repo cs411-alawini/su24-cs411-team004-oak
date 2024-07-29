@@ -140,6 +140,25 @@ def sell_stock(transaction_id):
             cursor.close()
             connection.close()
 
+def remove_from_watch(portfolioid, stocksymbol):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                    DELETE FROM Watchlist
+                    WHERE PortfolioID = %s AND StockSymbol = %s
+                """, (portfolioid, stocksymbol))
+        print("watch removed")
+        return True
+    except Error as e:
+        print(f"Sell Stock Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+
 
 # adds new user profile to users table
 def update_balance(new_balance, portfolio_id):
@@ -370,12 +389,11 @@ def dashboard(userid):
 
 @app.route('/create_portfolio', methods=['GET', 'POST'])
 def create_portfolio():
-    erMsg = ''
     if request.method == 'POST':
         portfolio_name = request.form['portfolio_name']
         if add_portfolio(portfolio_name):
                 return redirect(url_for('dashboard', userid=session['user']))
-    return render_template('create_portfolio.html', msg=erMsg)
+    return render_template('create_portfolio.html')
 
 
 @app.route('/portfolio/<portfolioid>', methods=['GET'])
@@ -406,29 +424,41 @@ def transaction_page(portfolioid):
 
 @app.route('/sell', methods=['GET','POST'])
 def sell_shares():
+    if request.form['action'] =='sell':
+        transaction_id = request.form.get('transaction_id')
+        portfolio_id = request.form.get('portfolio_id')
+        stock_current_price = Decimal(request.form.get('stock_current_price'))
+        num_shares = int(request.form.get('num_shares'))
+        portfolio_balance = Decimal(request.form.get('portfolio_balance'))
 
-    transaction_id = request.form.get('transaction_id')
-    portfolio_id = request.form.get('portfolio_id')
-    stock_current_price = Decimal(request.form.get('stock_current_price'))
-    num_shares = int(request.form.get('num_shares'))
-    portfolio_balance = Decimal(request.form.get('portfolio_balance'))
+        print(f"{portfolio_id=}")
+        print(f"{transaction_id=}")
+        print(f"{stock_current_price=}")
+        print(f"{num_shares=}")
+        print(f"{portfolio_balance=}")
 
-    print(f"{portfolio_id=}")
-    print(f"{transaction_id=}")
-    print(f"{stock_current_price=}")
-    print(f"{num_shares=}")
-    print(f"{portfolio_balance=}")
+        value_of_sale = stock_current_price * num_shares
 
-    value_of_sale = stock_current_price * num_shares
+        new_balance = portfolio_balance + value_of_sale
+        
+        print(f"{value_of_sale=}")
+        print(f"{new_balance=}")
 
-    new_balance = portfolio_balance + value_of_sale
-    
-    print(f"{value_of_sale=}")
-    print(f"{new_balance=}")
+        sell_stock(transaction_id)
 
-    sell_stock(transaction_id)
+        update_balance(new_balance, portfolio_id)
 
-    update_balance(new_balance, portfolio_id)
+    return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
+
+@app.route('/remove_watch', methods=['GET','POST'])
+def remove_watch():
+    if request.form['action'] =='remove':
+        stock_symbol = request.form.get('stock_symbol')
+        portfolio_id = request.form.get('portfolio_id')
+
+        print(f"{stock_symbol=}")
+        print(f"{portfolio_id=}")
+        remove_from_watch(portfolio_id, stock_symbol)
 
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
