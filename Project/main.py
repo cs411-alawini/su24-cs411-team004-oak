@@ -563,7 +563,12 @@ def buy_stock(portfolioid):
             if exists:
                 current_price = get_stock_current_price(stock_symbol)
                 value_of_buy = current_price * num_shares 
-                confirmed = True
+
+                cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
+                if value_of_buy < cash_balance:
+                    confirmed = True
+                else:
+                    stock_name = "Not enough cash for purchase:"
             
         elif 'place_order' in request.form:
             print("place order")
