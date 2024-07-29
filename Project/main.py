@@ -88,6 +88,50 @@ def add_user(userid, password, address, phonenumber, fullname):
             connection.close()
     return False
 
+# adds new user profile to users table
+def sell_stock(transaction_id):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                    UPDATE Transactions
+                    SET CurrentlyActive = 0
+                    WHERE TransactionID = %s
+                """, (transaction_id,))
+        print("stock sold")
+        return True
+    except Error as e:
+        print(f"Sell Stock Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+
+# adds new user profile to users table
+def update_balance(new_balance, portfolio_id):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                    UPDATE Portfolios
+                    SET PortfolioBalance = %s
+                    WHERE PortfolioID = %s
+                """, (new_balance, portfolio_id))
+        print("balance updated")
+        return True
+    except Error as e:
+        print(f"Balance Update Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+
 def get_portfolio_data(userid):
     connection = None
     try:
@@ -156,7 +200,7 @@ def get_transaction_data(portfolioid):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT CurrentlyActive, StockSymbol, NumShares, PurchasePrice, DateTime
+            SELECT TransactionID, CurrentlyActive, StockSymbol, NumShares, PurchasePrice, DateTime
             FROM Portfolios JOIN Transactions ON PortfolioID=PortfoliosPortfolioID
             WHERE PortfolioID = %s
         """, (portfolioid,))
@@ -298,7 +342,7 @@ def portfolio_page(portfolioid):
     if 'user' not in session:
         return redirect(url_for('login'))
     transaction_data = get_transaction_data(portfolioid)
-    print(transaction_data)
+    # print(transaction_data)
     portfolio_type = get_portfolio_type(portfolioid)
     watchlist_data = get_watchlist_data(portfolioid)
     pbalance = get_portfolio_balance(transaction_data)
@@ -311,6 +355,41 @@ def transaction_page(portfolioid):
     transaction_data = get_transaction_data(portfolioid)
     portfolio_type = get_portfolio_type(portfolioid)
     return render_template('transaction.html', transactions=transaction_data, portfolio=portfolio_type)
+
+
+
+#main intent is to get the transaction id to modify it
+#idk how to get the transaction data
+#use portfolio id? then query transactions? or more direct way to do it?
+
+@app.route('/sell', methods=['GET','POST'])
+def sell_shares():
+
+    transaction_id = request.form.get('transaction_id')
+    portfolio_id = request.form.get('portfolio_id')
+    stock_current_price = Decimal(request.form.get('stock_current_price'))
+    num_shares = int(request.form.get('num_shares'))
+    portfolio_balance = Decimal(request.form.get('portfolio_balance'))
+
+    print(f"{portfolio_id=}")
+    print(f"{transaction_id=}")
+    print(f"{stock_current_price=}")
+    print(f"{num_shares=}")
+    print(f"{portfolio_balance=}")
+
+    value_of_sale = stock_current_price * num_shares
+
+    new_balance = portfolio_balance + value_of_sale
+    
+    print(f"{value_of_sale=}")
+    print(f"{new_balance=}")
+
+    sell_stock(transaction_id)
+
+    update_balance(new_balance, portfolio_id)
+
+    return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
+
 
 
 # https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/

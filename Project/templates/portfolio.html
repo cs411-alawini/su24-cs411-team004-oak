@@ -55,7 +55,15 @@
                                 <td class="right">{{ data.PurchasePrice }}</td>
                                 <td>{{ data.DateTime }}</td>
                                 <td class="right">{{ data.CurrentPrice }}</td>
-                                <td><button type="button">Sell Shares</button>
+                                <td>
+                                    <form action="{{ url_for('sell_shares') }}" method="post">
+                                        <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
+                                        <input type="hidden" name="transaction_id" value="{{ data.TransactionID}}">
+                                        <input type="hidden" name="stock_current_price" value="{{ data.CurrentPrice}}">
+                                        <input type="hidden" name="num_shares" value="{{ data.NumShares}}">
+                                        <input type="hidden" name="portfolio_balance" value="{{ pbalance }}">
+                                        <button type="submit">Sell Shares</button>                                    
+                                    </form>
                             </tr>
                         {%endif%}
                     {%endfor%}
