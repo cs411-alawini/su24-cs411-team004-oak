@@ -10,22 +10,27 @@
         }
     </style>
 </head>
-<body>
-    <h1>Purchase a Stock</h1>
-    {% if msg %}
-        <p>{{msg}}</p>
-        <p>{{stock_price}}</p>
-        <p>{{purchase_cost}}</p>
+<body >
+    {% if portfolio %}
+        <h1>{{portfolio.PortfolioType}}</h1>
     {%endif%}
+    <h1>Purchase a Stock</h1>
+
     <form method="post">
         <label for="stock_symbol">Stock Symbol:</label>
         <input type="text" id="stock_symbol" name="stock_symbol" value="{{ stock_symbol }}" required><br>
-        <button type="submit" name="confirm_stock">Confirm Stock Symbol</button>
         <br>
         <label for="a_stock">Quantity of Stock:</label>
-        <input type="text" id="num_shares" name="num_shares" required><br>
+        <input type="text" id="num_shares" name="num_shares" value="{{ num_shares }}" required><br>
         <br>
+        <button type="submit" name="confirm_stock">Confirm Stock Symbol</button>
+        {% if msg %}
+            <p>{{msg}}</p>
+            <p>Current Price: ${{stock_price}}</p>
+            <p>Total Cost of Purchase: ${{purchase_cost}}</p>
+        {%endif%}
         <button type="submit" name="place_order">Complete Purchase</button>
+        <button type="button" onclick="window.location.href='{{ url_for('portfolio_page',portfolioid=portfolio.PortfolioID ) }}'" class="button-space">Back</button>
     </form>
 </body>
 </html>

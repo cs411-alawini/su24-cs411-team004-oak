@@ -4,7 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 import sys
 import yfinance as yf
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #DO NOT DELETER: need this to work for some reason
 
@@ -278,6 +278,7 @@ def get_transaction_data(portfolioid):
         for row in cursor:
             transaction_data.append(row)
         yfinance_data(transaction_data)
+        calculate_change(transaction_data)
 
         return transaction_data
     except Error as e:
@@ -287,6 +288,19 @@ def get_transaction_data(portfolioid):
             cursor.close()
             connection.close()
     return False
+
+def calculate_change(array_of_stock_dicts):
+    for stock_dict in array_of_stock_dicts:
+        purchase_price = stock_dict['PurchasePrice']
+        current_price = stock_dict['CurrentPrice']
+        num_shares = stock_dict['NumShares']
+
+        percentage_change = ((current_price - purchase_price) / purchase_price * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        dollar_change = ((current_price - purchase_price) * num_shares).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        stock_dict['PercentChange'] = Decimal(percentage_change)
+        stock_dict['DollarChange'] = Decimal(dollar_change)
+    
 
 def get_watchlist_data(portfolioid):
     connection = None
@@ -313,6 +327,9 @@ def get_watchlist_data(portfolioid):
     return False
 
 def yfinance_data(array_of_stock_dicts):
+
+    if len(array_of_stock_dicts) == 0:
+        return
 
     stock_symbols = []
     for stock_dict in array_of_stock_dicts:
@@ -488,11 +505,21 @@ def buy_stock(portfolioid):
     if 'user' not in session:
         return redirect(url_for('login'))
     
+    stock_symbol = ''
+    num_shares = ''
     stock_name = ''
     current_price = Decimal(0)
     value_of_buy = 0
+    confirmed = False
+
+
+    portfolio_data = get_portfolio_type(portfolioid)
 
     if request.method == 'POST':
+
+        stock_symbol = request.form.get('stock_symbol')
+        num_shares = request.form.get('num_shares')
+
         if 'confirm_stock' in request.form:
             stock_symbol = request.form.get('stock_symbol')
             num_shares = int(request.form.get('num_shares'))
@@ -502,6 +529,7 @@ def buy_stock(portfolioid):
             if exists:
                 current_price = get_stock_current_price(stock_symbol)
                 value_of_buy = current_price * num_shares 
+                confirmed = True
             
         elif 'place_order' in request.form:
             print("place order")
@@ -517,24 +545,21 @@ def buy_stock(portfolioid):
             
             
             cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
-            print(f"{cash_balance=}")
-            print(f"{value_of_buy=}")
-
+            # print(f"{cash_balance=}")
+            # print(f"{value_of_buy=}")
 
 
             if value_of_buy < cash_balance:
-                print("complete purhcase of stock")
-                
-                print("deduct balance")
                 new_balance = cash_balance - value_of_buy
                 update_balance(new_balance, portfolioid)
 
-                print("write transaction")
                 write_purchase(stock_symbol, portfolioid, num_shares, current_price)
+
+                return redirect(url_for('portfolio_page', portfolioid=portfolioid))
             else:
                 print("purchase not possible")
 
-    return render_template('buy_stock.html', portfolioid=portfolioid, msg=stock_name, stock_price=current_price, purchase_cost=value_of_buy)
+    return render_template('buy_stock.html', portfolio=portfolio_data, msg=stock_name, stock_symbol=stock_symbol, num_shares=num_shares, stock_price=current_price, purchase_cost=value_of_buy, confirmed=confirmed)
 
 
 

@@ -44,8 +44,9 @@
                     <th>Purchase Price</th>
                     <th>Date Bought</th>
                     <th>Current Price</th>
+                    <th>Gain/Lost (%)</th>
+                    <th>Gain/Loss ($)</th>
                     <th>Sell</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -55,9 +56,11 @@
                             <tr data-shares="{{ data.NumShares }}" data-price="{{ data.PurchasePrice }}">
                                 <td>{{ data.StockSymbol }}</td>
                                 <td>{{ data.NumShares }}</td>
-                                <td class="right">{{ data.PurchasePrice }}</td>
+                                <td class="right">${{ data.PurchasePrice }}</td>
                                 <td>{{ data.DateTime }}</td>
-                                <td class="right">{{ data.CurrentPrice }}</td>
+                                <td class="right">${{ data.CurrentPrice }}</td>
+                                <td class="right">{{ data.PercentChange }}%</td>
+                                <td class="right">${{ data.DollarChange }}</td>
                                 <td>
                                     <form action="{{ url_for('sell_shares') }}" method="post">
                                         <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
@@ -65,9 +68,9 @@
                                         <input type="hidden" name="stock_current_price" value="{{ data.CurrentPrice}}">
                                         <input type="hidden" name="num_shares" value="{{ data.NumShares}}">
                                         <input type="hidden" name="portfolio_balance" value="{{ portfolio.PortfolioBalance }}">
-                                        <button type="submit" name="action" value="sell">Sell Shares</button>                                    
+                                        <input type="hidden" name="action" value="sell">
+                                        <button type="submit">Sell Shares</button>                                    
                                     </form>
-                                </td>
                             </tr>
                         {%endif%}
                     {%endfor%}
@@ -87,7 +90,6 @@
                 <th>Price</th>
                 <th>Hi</th>
                 <th>Low</th>
-                <th></th>
             </thead>
             <tbody>
                 {% if watchlist %}
@@ -95,15 +97,6 @@
                     <tr>
                         <td>{{item.StockSymbol}}</td>
                         <td>{{item.CurrentPrice}}</td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <form action="{{ url_for('remove_watch') }}" method="post">
-                                <input type="hidden" name="stock_symbol" value="{{ item.StockSymbol }}">
-                                <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
-                                <button type="submit" name="action" value="remove">Remove</button>                                                                       
-                            </form>
-                        </td>
                     </tr>
                     {%endfor%}
                 {%endif%}
