@@ -102,6 +102,7 @@
         <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
     </session>
     <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
-    
+
+    <button type="button" onclick="window.location.href='{{ url_for('buy_stock', portfolioid=portfolio.PortfolioID) }}'" class="button-space">Buy Stock</button>
 </body>
 </html>
