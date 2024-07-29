@@ -463,26 +463,5 @@ def remove_watch():
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
 
-
-# https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
-# @app.route("/logout")
-# def logout():
-#     session["name"] = None
-#     return redirect("/")
-    
-# @app.route('/db-test')
-# def db_test():
-#     connection = None
-#     try:
-#         connection = get_db_connection()
-#         if connection.is_connected():
-#             db_info = connection.get_server_info()
-#             return f'Connected to MySQL database... MySQL Server version: {db_info}'
-#     except Error as e:
-#         return f'Error while connecting to MySQL: {e}'
-#     finally:
-#         if connection and connection.is_connected():
-#             connection.close()
-
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
