@@ -88,6 +88,37 @@ def add_user(userid, password, address, phonenumber, fullname):
             connection.close()
     return False
 
+
+# adds new user profile to users table
+def add_portfolio(portfolio_name):
+    connection = None
+    try:
+        user_id = session['user']
+        
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO Portfolios (PortfolioType, PortfolioBalance)
+            VALUES (%s, %s)
+        """, (portfolio_name, 100000))
+
+        portfolio_id = cursor.lastrowid
+
+        cursor.execute("""
+            INSERT INTO UserPortfolio (UsersUserID, PortfoliosPortfolioID)
+            VALUES (%s, %s)
+        """, (user_id, portfolio_id))
+
+        return True
+    except Error as e:
+        print(f"AU Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+    return False
+
 # adds new user profile to users table
 def sell_stock(transaction_id):
     connection = None
@@ -335,6 +366,15 @@ def dashboard(userid):
     fullname = get_fullname(userid)
     dbalance = get_dashboard_balance(portfolio_data)
     return render_template('dash.html', portfolios=portfolio_data, fullname=fullname['Fullname'], dbalance=dbalance)
+
+
+@app.route('/create_portfolio', methods=['GET', 'POST'])
+def create_portfolio():
+    erMsg = ''
+    if request.method == 'POST':
+        portfolio_name = request.form['portfolio_name']
+        add_portfolio(portfolio_name)
+    return render_template('create_portfolio.html', msg=erMsg)
 
 
 @app.route('/portfolio/<portfolioid>', methods=['GET'])
