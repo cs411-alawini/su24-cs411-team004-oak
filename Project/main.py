@@ -245,6 +245,34 @@ def get_portfolio_type(portfolioid):
             connection.close()
     return False
 
+def get_stats_performers(date_start, date_end):
+
+    # date_start = 
+    # date_end = 
+
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT hs.StockSymbol, c.Name, MAX(hs.ClosePrice) / MIN(hs.ClosePrice) AS Covid_Best_Performers
+            FROM HistoricalStocks hs
+                JOIN Companies c USING(StockSymbol)
+            WHERE hs.`Date` BETWEEN '2020-03-14' AND '2020-12-31'
+            GROUP BY hs.StockSymbol
+            HAVING MAX(hs.ClosePrice) / MIN(hs.ClosePrice) > 5
+            ORDER BY Covid_Best_Performers DESC
+        """, (portfolioid,))
+        return cursor.fetchone()
+    except Error as e:
+        print(f"GPT Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
+
 def get_fullname(userid):
     connection = None
     try:
@@ -291,6 +319,7 @@ def get_transaction_data(portfolioid):
 
 def calculate_change(array_of_stock_dicts):
     for stock_dict in array_of_stock_dicts:
+        print(f"{stock_dict=}")
         purchase_price = stock_dict['PurchasePrice']
         current_price = stock_dict['CurrentPrice']
         num_shares = stock_dict['NumShares']
@@ -467,6 +496,14 @@ def portfolio_page(portfolioid):
     print(portfolio_data)
     return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance)
 
+@app.route('/stats')
+def stats_page():
+    
+    stats_data_performers = get_stats_performers()
+
+    return render_template('stats.html')
+
+
 @app.route('/portfolio/<portfolioid>/add_watchlist', methods=['GET', 'POST'])
 def add_watchlist(portfolioid):
     if request.method == 'POST':
@@ -551,12 +588,10 @@ def buy_stock(portfolioid):
 
     if request.method == 'POST':
 
-        stock_symbol = request.form.get('stock_symbol')
-        num_shares = request.form.get('num_shares')
+        stock_symbol = request.form.get('stock_symbol').upper()
+        num_shares = int(request.form.get('num_shares'))
 
         if 'confirm_stock' in request.form:
-            stock_symbol = request.form.get('stock_symbol')
-            num_shares = int(request.form.get('num_shares'))
 
             exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
@@ -572,9 +607,6 @@ def buy_stock(portfolioid):
             
         elif 'place_order' in request.form:
             print("place order")
-
-            stock_symbol = request.form.get('stock_symbol')
-            num_shares = int(request.form.get('num_shares'))
 
             exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
