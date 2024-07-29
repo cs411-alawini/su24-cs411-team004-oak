@@ -90,6 +90,27 @@ def add_user(userid, password, address, phonenumber, fullname):
 
 
 # adds new user profile to users table
+def write_purchase(stock_symbol, portfolio_id, num_shares, purchase_price):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO Transactions (CurrentlyActive, StockSymbol, NumShares, PurchasePrice, `DateTime`, PortfoliosPortfolioID)
+            VALUES (1, %s, %s, %s, NOW(), %s);
+        """, (stock_symbol, num_shares, purchase_price, portfolio_id))
+        return True
+    except Error as e:
+        print(f"AU Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+    return False
+
+
+# adds new user profile to users table
 def add_portfolio(portfolio_name):
     connection = None
     try:
@@ -468,25 +489,60 @@ def buy_stock(portfolioid):
         return redirect(url_for('login'))
     
     stock_name = ''
-    stock_name = Decimal(0)
+    current_price = Decimal(0)
+    value_of_buy = 0
 
     if request.method == 'POST':
         if 'confirm_stock' in request.form:
             stock_symbol = request.form.get('stock_symbol')
+            num_shares = int(request.form.get('num_shares'))
 
             exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
             if exists:
                 current_price = get_stock_current_price(stock_symbol)
+                value_of_buy = current_price * num_shares 
             
-
-            print("confirm stock")
-        elif 'calculate_price' in request.form:
-            print("calc price")
         elif 'place_order' in request.form:
             print("place order")
 
-    return render_template('buy_stock.html', portfolioid=portfolioid, msg=stock_name, stock_price=current_price)
+            stock_symbol = request.form.get('stock_symbol')
+            num_shares = int(request.form.get('num_shares'))
+
+            exists, stock_name = get_stock_name_from_symbol(stock_symbol)
+
+            if exists:
+                current_price = get_stock_current_price(stock_symbol)
+                value_of_buy = current_price * num_shares 
+            
+            
+            cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
+            print(f"{cash_balance=}")
+            print(f"{value_of_buy=}")
+
+
+
+            if value_of_buy < cash_balance:
+                print("complete purhcase of stock")
+                
+                print("deduct balance")
+                new_balance = cash_balance - value_of_buy
+                update_balance(new_balance, portfolioid)
+
+                print("write transaction")
+                write_purchase(stock_symbol, portfolioid, num_shares, current_price)
+            else:
+                print("purchase not possible")
+
+    return render_template('buy_stock.html', portfolioid=portfolioid, msg=stock_name, stock_price=current_price, purchase_cost=value_of_buy)
+
+
+
+
+
+
+
+
 
 def get_stock_current_price(stock_symbol):
     try:
