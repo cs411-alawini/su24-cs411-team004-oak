@@ -263,6 +263,25 @@ def get_stats_performers(date_start, date_end):
             connection.close()
     return False
 
+def get_sector_portfolios(sector):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            CALL sectorHeavy(%s)
+        """, (sector,))
+        return cursor.fetchall()
+    except Error as e:
+        error_code = e.errno
+        error_message = e.msg
+        print(f"sector_search Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return error_message
+
 def get_company_search(search_str):
     connection = None
     try:
@@ -319,7 +338,25 @@ def get_transaction_data(portfolioid):
 
         return transaction_data
     except Error as e:
-        print(f"GPD Error: {e}")
+        print(f"GTD Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return False
+
+def get_list_sectors():
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT DISTINCT Sector
+            FROM Companies
+        """,params=None)
+        return cursor.fetchall()
+    except Error as e:
+        print(f"GLS Error: {e}")
     finally:
         if connection and connection.is_connected():
             cursor.close()
@@ -551,6 +588,11 @@ def stats():
     stats_data_performers=''
     companyResult=''
     searchErMsg=''
+    portfolios=''
+    sectorErMsg=''
+    sector=''
+    sectors = get_list_sectors()
+    print(f'{sectors=}')
     if 'user' not in session:
         return redirect(url_for('login'))
     if request.method == 'POST':
@@ -572,7 +614,15 @@ def stats():
                 searchErMsg = companyResult
                 companyResult =''
             print(f'{searchErMsg=}')
-    return render_template('stats.html', msg1=msg1, performers=stats_data_performers, keysearch=companyResult,searchErMsg=searchErMsg)
+        if request.form['action'] =='sectors':
+            sector = request.form['sectors']
+            portfolios = get_sector_portfolios(sector)
+            print(f'{portfolios=}')
+            if isinstance(portfolios,str):
+                sectorErMsg = portfolios
+                portfolios =''
+
+    return render_template('stats.html', msg1=msg1, performers=stats_data_performers, keysearch=companyResult,searchErMsg=searchErMsg, sectors=sectors, Sportfolios=portfolios, sectorErMsg=sectorErMsg, sector=sector)
 
 def format_date_from_str(datestr):
     input_format = "%Y-%m-%d"

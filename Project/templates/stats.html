@@ -70,6 +70,47 @@
                 </tbody>
             </table>
         {%endif%}
+        
+  </article>
+  <article>
+    <form method="post">
+        <h2>Choose to search for portfolios heavy in chosen sector</h2>
+        <label for="sectors">Choose a sector:</label>
+        <select name="sectors" id="sectors">
+            {%if sectors or sectorErMsg%}
+                {%for s in sectors%}
+                    <option value={{s.Sector}}>{{s.Sector}}</option>
+                {%endfor%}
+            {%endif%}
+        </select>
+        <button type="submit" name="action" value="sectors">Search</button>
+      </form>
+      <p>Results for {{sector}} Sector</p>
+      {%if Sportfolios or sectorErMsg%}
+            <table>
+                <thead>
+                    <th>PortfolioID</th>
+                    <th>StockSymbol</th>
+                    <th>Company Name</th>
+                </thead>
+                <tbody>
+                    {%if sectorErMsg%}
+                        <tr>
+                            <td colspan="3">{{sectorErMsg}}</td>
+                        </tr>
+                    {%endif%}
+                    {%if Sportfolios%}
+                        {%for s in Sportfolios%}
+                            <tr>
+                                <td>{{s.PortfolioID}}</td>
+                                <td>{{s.StockSymbol}}</td>
+                                <td>{{s.CompanyName}}</td>
+                            </tr>
+                        {%endfor%}
+                    {%endif%}
+                </tbody>
+            </table>
+            {%endif%}
   </article>
   <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
 
