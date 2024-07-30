@@ -272,7 +272,14 @@ def get_stats_performers(date_start, date_end):
         cursor.execute("""
             CALL bestPerformers(%s,%s)
         """, (date_start, date_end))
-        return cursor.fetchall()
+
+        stats_data = cursor.fetchall()
+
+        for stat in stats_data:
+            percent = (stat['performance'] - 1) * 100
+            stat['performance'] = f"{percent:.2f}%"
+        
+        return stats_data
     except Error as e:
         print(f"Performer Error: {e}")
     finally:

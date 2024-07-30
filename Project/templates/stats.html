@@ -40,7 +40,7 @@
     </artlicle>
     <article>
         <h2>Best Performers</h2>
-        <p>Enter dates to find best perfomers in that interval.</p>
+        <p>Enter dates to find best performing stocks in that interval.</p>
         {%if msg1%}
             <p>{{msg1}}</p>
         {%endif%}
@@ -57,7 +57,7 @@
                 <thead>
                     <th>Stock Symbol</th>
                     <th>Stock Name</th>
-                    <th>Max/Min</th>
+                    <th>Percent Increase</th>
                 </thead>
                 <tbody>
                     {%for p in performers%}
@@ -72,6 +72,7 @@
         {%endif%}
         
     </article>
+    <h1>Find users with a similar investment strategy</h1>
     <article>
         <form method="post">
             <h2>Choose to search for portfolios heavy in chosen sector</h2>
@@ -116,6 +117,7 @@
     </article>
     <article>
         <h2>High Market Cap Investors</h2>
+        <p>Leaderboard keeping track of users who own the greatest number of the 10 most valuable companies</p>
         {%if valStocks%}
                 <table>
                     <thead>
