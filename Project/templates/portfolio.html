@@ -8,20 +8,7 @@
     {%else%}
         <title>Portfolio</title>
     {%endif%}
-    <style>
-        .right {
-            text-align: right;
-        }
-        .balance {
-            margin-top: 10px;
-            text-align: left;
-            width: 50%;
-        }
-        .button-space {
-            margin-right: 10px;
-            margin-top: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <nav>
@@ -86,7 +73,7 @@
     </article>
     <article>
         <h1>Watchlist</h1>
-        <table border="1">
+        <table>
             <thead>
                 <th>Stock</th>
                 <th>Price</th>
@@ -100,8 +87,8 @@
                     <tr>
                         <td>{{item.StockSymbol}}</td>
                         <td>{{item.CurrentPrice}}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{{item.High}}</td>
+                        <td>{{item.Low}}</td>
                         <td>
                             <form action="{{ url_for('remove_watch') }}" method="post">
                                 <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">

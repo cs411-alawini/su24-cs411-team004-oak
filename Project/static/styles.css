@@ -1,0 +1,137 @@
+/* Reset some default browser styles */
+body, h1, button, input, fieldset, form, legend {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+/* Set a clean and modern font and color scheme */
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow: auto;
+}
+
+/* Center and style the login form */
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Style the fieldset */
+fieldset {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+/* Style the legend */
+legend {
+    font-size: 1.5em;
+    color: #4A90E2;
+    margin-bottom: 10px;
+}
+
+/* Style the input fields */
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.button-space {
+    margin-right: 10px;
+}
+
+/* Style for the table */
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #4A90E2;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Style for the balance fieldset */
+.balance {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.balance h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-top: 10px;
+}
+
+/* Style for buttons */
+button {
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #357ABD;
+}
+
+/* Style for headings */
+h1 {
+    font-size: 2em;
+    color: #4A90E2;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Style for the right-aligned text */
+.right {
+    text-align: right;
+}
+
+/* Style for user actions */
+.user-actions {
+    text-align: center;
+    margin: 20px;
+}

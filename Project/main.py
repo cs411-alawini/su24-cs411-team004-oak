@@ -337,6 +337,22 @@ def get_watchlist_data(portfolioid):
             watchlist_data.append(row)
         yfinance_data(watchlist_data)
 
+        print(watchlist_data)
+
+        user_id = session['user']
+
+        hi_lo_dict = get_hi_lo(user_id, portfolioid)
+
+        print("this is hi lo:", hi_lo_dict)
+
+        for stock in watchlist_data:
+
+            stock_symbol = stock['StockSymbol']
+            stock['High'] = hi_lo_dict[stock_symbol][0]
+            stock['Low'] = hi_lo_dict[stock_symbol][1]
+
+        print("watchlist with hi lo", watchlist_data)
+
         return watchlist_data
     except Error as e:
         print(f"GWD Error: {e}")
@@ -706,6 +722,42 @@ def get_stock_name_from_symbol(stock_symbol):
             cursor.close()
             connection.close()
 
+
+
+def get_hi_lo(user_id, portfolio_id):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT w.StockSymbol, 
+                MAX(hs.ClosePrice) AS HighPrice, 
+                MIN(hs.ClosePrice) AS LowPrice
+            FROM Users u
+            JOIN UserPortfolio up ON u.UserID = up.UsersUserID
+            JOIN Watchlist w ON up.PortfoliosPortfolioID = w.PortfolioID
+            JOIN HistoricalStocks hs ON w.StockSymbol = hs.StockSymbol
+            WHERE u.UserID = %s 
+                AND w.PortfolioID = %s
+                AND hs.Date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY u.UserID, w.StockSymbol
+                """, (user_id, portfolio_id))
+        stock_hi_lo = []
+        for row in cursor:
+            stock_hi_lo.append(row)
+
+        hi_lo_dict = {}
+        for symbol, high, low in stock_hi_lo:
+            hi_lo_dict[symbol] = (high, low)
+
+        return hi_lo_dict
+    
+    except Error as e:
+        print(f"get stock name from symbol Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
