@@ -27,6 +27,24 @@
         <button type="submit">Search</button>
     </form>
     <h5>Start Date needs to be ≥ 01-04-2010 and End Date needs to be ≤ 07-15-2024</h5>
+    {%if performers%}
+        <table border="3px">
+            <thead>
+                <th>Stock Symbol</th>
+                <th>Stock Name</th>
+                <th>Max/Min</th>
+            </thead>
+            <tbody>
+                {%for p in performers%}
+                    <tr>
+                        <td>{{p.StockSymbol}}</td>
+                        <td>{{p.Name}}</td>
+                        <td>{{p.performance}}</td>
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    {%endif%}
   </article>
   <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
 

@@ -247,26 +247,16 @@ def get_portfolio_type(portfolioid):
     return False
 
 def get_stats_performers(date_start, date_end):
-
-    # date_start = 
-    # date_end = 
-
     connection = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT hs.StockSymbol, c.Name, MAX(hs.ClosePrice) / MIN(hs.ClosePrice) AS Covid_Best_Performers
-            FROM HistoricalStocks hs
-                JOIN Companies c USING(StockSymbol)
-            WHERE hs.`Date` BETWEEN '2020-03-14' AND '2020-12-31'
-            GROUP BY hs.StockSymbol
-            HAVING MAX(hs.ClosePrice) / MIN(hs.ClosePrice) > 5
-            ORDER BY Covid_Best_Performers DESC
-        """, (portfolioid,))
-        return cursor.fetchone()
+            CALL bestPerformers(%s,%s)
+        """, (date_start, date_end))
+        return cursor.fetchall()
     except Error as e:
-        print(f"GPT Error: {e}")
+        print(f"Performer Error: {e}")
     finally:
         if connection and connection.is_connected():
             cursor.close()
@@ -497,13 +487,6 @@ def portfolio_page(portfolioid):
     print(portfolio_data)
     return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance)
 
-@app.route('/stats')
-def stats_page():
-    
-    stats_data_performers = get_stats_performers()
-
-    return render_template('stats.html')
-
 
 @app.route('/portfolio/<portfolioid>/add_watchlist', methods=['GET', 'POST'])
 def add_watchlist(portfolioid):
@@ -531,17 +514,22 @@ def transaction_page(portfolioid):
 @app.route('/stats/', methods=['GET', 'POST'])
 def stats():
     erMsg=''
+    flag=''
+    stats_data_performers=''
     if 'user' not in session:
         return redirect(url_for('login'))
     if request.method == 'POST':
+        flag=1
         start_date = request.form['start_date']
         end_date = request.form['end_date']
         print(f'{start_date=}')
         print(f'{end_date=}')
         erMsg = verify_date_search(start_date, end_date)
-        print(erMsg)
+        print(f'{erMsg}')
+        stats_data_performers = get_stats_performers(start_date,end_date)
+        print(f'{stats_data_performers=}')
     
-    return render_template('stats.html', msg=erMsg)
+    return render_template('stats.html', msg=erMsg, performers=stats_data_performers)
 
 def format_date_from_str(datestr):
     input_format = "%Y-%m-%d"
