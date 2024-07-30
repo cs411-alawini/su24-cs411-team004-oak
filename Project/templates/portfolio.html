@@ -24,7 +24,7 @@
 
     <article>
         <h1>Current Positions</h1>
-        <table border="1">
+        <table>
             <thead>
                 <tr>
                     <th>Stock</th>
@@ -86,9 +86,9 @@
                     {% for item in watchlist %}
                     <tr>
                         <td>{{item.StockSymbol}}</td>
-                        <td>{{item.CurrentPrice}}</td>
-                        <td>{{item.High}}</td>
-                        <td>{{item.Low}}</td>
+                        <td>${{item.CurrentPrice}}</td>
+                        <td>${{item.High}}</td>
+                        <td>${{item.Low}}</td>
                         <td>
                             <form action="{{ url_for('remove_watch') }}" method="post">
                                 <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
