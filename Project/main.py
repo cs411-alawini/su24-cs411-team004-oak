@@ -506,15 +506,18 @@ def stats_page():
 
 @app.route('/portfolio/<portfolioid>/add_watchlist', methods=['GET', 'POST'])
 def add_watchlist(portfolioid):
+    erMsg=''
     if request.method == 'POST':
-
         stock_symbol = request.form['stock_symbol']
         stock_symbol = stock_symbol.upper()
         exist, name = get_stock_name_from_symbol(stock_symbol)
         if exist:
             add_stock_to_watchlist(stock_symbol, portfolioid)
             return redirect(url_for('portfolio_page',  portfolioid=portfolioid))
-    return render_template('add_watchlist.html', portfolioid=portfolioid)
+        else:
+            print("invalid stock")
+            erMsg = "Not valid Stock Symbol"
+    return render_template('add_watchlist.html', portfolioid=portfolioid, erMsg=erMsg)
 
 @app.route('/transactions/<portfolioid>', methods=['GET'])
 def transaction_page(portfolioid):
@@ -532,6 +535,7 @@ def transaction_page(portfolioid):
 
 @app.route('/sell', methods=['GET','POST'])
 def sell_shares():
+    portfolio_id=''
     if request.form['action'] =='sell':
         transaction_id = request.form.get('transaction_id')
         portfolio_id = request.form.get('portfolio_id')
@@ -555,11 +559,11 @@ def sell_shares():
         sell_stock(transaction_id)
 
         update_balance(new_balance, portfolio_id)
-
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
 @app.route('/remove_watch', methods=['GET','POST'])
 def remove_watch():
+    portfolio_id = ''
     if request.form['action'] =='remove':
         stock_symbol = request.form.get('stock_symbol')
         portfolio_id = request.form.get('portfolio_id')

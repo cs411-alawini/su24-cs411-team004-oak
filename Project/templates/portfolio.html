@@ -69,9 +69,9 @@
                                         <input type="hidden" name="stock_current_price" value="{{ data.CurrentPrice}}">
                                         <input type="hidden" name="num_shares" value="{{ data.NumShares}}">
                                         <input type="hidden" name="portfolio_balance" value="{{ portfolio.PortfolioBalance }}">
-                                        <input type="hidden" name="action" value="sell">
-                                        <button type="submit">Sell Shares</button>                                    
+                                        <button type="submit" name="action" value="sell">Sell Shares</button>                                    
                                     </form>
+                                </td>
                             </tr>
                         {%endif%}
                     {%endfor%}
@@ -82,6 +82,7 @@
                 {%endif%}
             </tbody>
         </table>
+        <button type="button" onclick="window.location.href='{{ url_for('buy_stock', portfolioid=portfolio.PortfolioID) }}'" class="button-space">Buy Stock</button>
     </article>
     <article>
         <h1>Watchlist</h1>
@@ -91,6 +92,7 @@
                 <th>Price</th>
                 <th>Hi</th>
                 <th>Low</th>
+                <th></th>
             </thead>
             <tbody>
                 {% if watchlist %}
@@ -98,8 +100,20 @@
                     <tr>
                         <td>{{item.StockSymbol}}</td>
                         <td>{{item.CurrentPrice}}</td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <form action="{{ url_for('remove_watch') }}" method="post">
+                                <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
+                                <input type="hidden" name="stock_symbol" value="{{ item.StockSymbol }}">
+                                <input type="hidden" name="current_price" value="{{ item.CurrentPrice}}">
+                                <button type="submit" name="action" value="remove">Remove</button>                               
+                            </form>
+                        </td>
                     </tr>
                     {%endfor%}
+                {%else%}
+                    <td>Watchlist is Empty</td>
                 {%endif%}
             </tbody>
         </table>
@@ -110,7 +124,5 @@
         <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
     </session>
     <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
-
-    <button type="button" onclick="window.location.href='{{ url_for('buy_stock', portfolioid=portfolio.PortfolioID) }}'" class="button-space">Buy Stock</button>
 </body>
 </html>
