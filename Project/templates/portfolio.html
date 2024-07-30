@@ -109,7 +109,8 @@
     </article>
     <session class="user">
         <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
+        <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
     </session>
-    <button type="button" onclick="window.location.href='{{ url_for('login') }}'" class="button-space">Log Out</button>
+    
 </body>
 </html>
