@@ -263,6 +263,24 @@ def get_stats_performers(date_start, date_end):
             connection.close()
     return False
 
+def get_company_search(search_str):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            CALL search(%s)
+        """, (search_str,))
+        return cursor.fetchall()
+    except Error as e:
+        error_code = e.errno
+        error_message = e.msg
+        print(f"KeySearch Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return error_message
 
 def get_fullname(userid):
     connection = None
@@ -529,23 +547,32 @@ def transaction_page(portfolioid):
 
 @app.route('/stats/', methods=['GET', 'POST'])
 def stats():
-    erMsg=''
-    flag=''
+    msg1=''
     stats_data_performers=''
+    companyResult=''
+    searchErMsg=''
     if 'user' not in session:
         return redirect(url_for('login'))
     if request.method == 'POST':
-        flag=1
-        start_date = request.form['start_date']
-        end_date = request.form['end_date']
-        print(f'{start_date=}')
-        print(f'{end_date=}')
-        erMsg = verify_date_search(start_date, end_date)
-        print(f'{erMsg}')
-        stats_data_performers = get_stats_performers(start_date,end_date)
-        print(f'{stats_data_performers=}')
-    
-    return render_template('stats.html', msg=erMsg, performers=stats_data_performers)
+        if request.form['action'] =='dateSearch':
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            print(f'{start_date=}')
+            print(f'{end_date=}')
+            erMsg = verify_date_search(start_date, end_date)
+            print(f'{msg1}')
+            stats_data_performers = get_stats_performers(start_date,end_date)
+            print(f'{stats_data_performers=}')
+        if request.form['action'] =='companySearch':
+            companystr = request.form['companySearch']
+            print(f'{companystr=}')
+            companyResult = get_company_search(companystr)
+            print(f'{companyResult=}')
+            if isinstance(companyResult,str):
+                searchErMsg = companyResult
+                companyResult =''
+            print(f'{searchErMsg=}')
+    return render_template('stats.html', msg1=msg1, performers=stats_data_performers, keysearch=companyResult,searchErMsg=searchErMsg)
 
 def format_date_from_str(datestr):
     input_format = "%Y-%m-%d"
