@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignUp</title>
+    <style>
+        .button-space {
+            margin-right: 10px;
+        }
+        .label-space{
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+  <article>
+    <h2>Best Performers</h2>
+    {%if msg%}
+        <p>{{msg}}</p>
+    {%endif%}
+    <form method="post">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" min="2010-01-04" max="2024-07-15" required>
+        <label class="label-space" for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" min="start_date" max="2024-07-15" required>
+        <button type="submit">Search</button>
+    </form>
+    <h5>Start Date needs to be ≥ 01-04-2010 and End Date needs to be ≤ 07-15-2024</h5>
+    {%if performers%}
+        <table border="3px">
+            <thead>
+                <th>Stock Symbol</th>
+                <th>Stock Name</th>
+                <th>Max/Min</th>
+            </thead>
+            <tbody>
+                {%for p in performers%}
+                    <tr>
+                        <td>{{p.StockSymbol}}</td>
+                        <td>{{p.Name}}</td>
+                        <td>{{p.performance}}</td>
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    {%endif%}
+  </article>
+  <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
+
+</body>
+</html>

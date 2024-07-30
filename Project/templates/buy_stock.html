@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Portfolio</title>
-    <style>
-        .button-space {
-            margin-right: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body >
     {% if portfolio %}
         <h1>{{portfolio.PortfolioType}}</h1>
     {%endif%}
-    <h1>Purchase a Stock</h1>
+    <h2>Purchase a Stock</h2>
 
     <form method="post">
         <label for="stock_symbol">Stock Symbol:</label>
