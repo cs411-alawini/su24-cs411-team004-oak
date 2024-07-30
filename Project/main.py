@@ -593,42 +593,47 @@ def buy_stock(portfolioid):
 
         if 'confirm_stock' in request.form:
 
-            exists, stock_name = get_stock_name_from_symbol(stock_symbol)
+            if num_shares < 1:
+                stock_name = "Invalid number of shares"
+            else: 
+                exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
-            if exists:
-                current_price = get_stock_current_price(stock_symbol)
-                value_of_buy = current_price * num_shares 
+                if exists:
+                    current_price = get_stock_current_price(stock_symbol)
+                    value_of_buy = current_price * num_shares 
 
-                cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
-                if value_of_buy < cash_balance:
-                    confirmed = True
-                else:
-                    stock_name = "Not enough cash for purchase:"
+                    cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
+                    if value_of_buy < cash_balance:
+                        confirmed = True
+                    else:
+                        stock_name = "Not enough cash for purchase:"
             
         elif 'place_order' in request.form:
-            print("place order")
 
-            exists, stock_name = get_stock_name_from_symbol(stock_symbol)
+            if num_shares < 1:
+                stock_name = "Invalid number of shares"
+            else: 
+                exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
-            if exists:
-                current_price = get_stock_current_price(stock_symbol)
-                value_of_buy = current_price * num_shares 
-            
-            
-            cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
-            # print(f"{cash_balance=}")
-            # print(f"{value_of_buy=}")
+                if exists:
+                    current_price = get_stock_current_price(stock_symbol)
+                    value_of_buy = current_price * num_shares 
+                
+                
+                cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
+                # print(f"{cash_balance=}")
+                # print(f"{value_of_buy=}")
 
 
-            if value_of_buy < cash_balance:
-                new_balance = cash_balance - value_of_buy
-                update_balance(new_balance, portfolioid)
+                if value_of_buy < cash_balance:
+                    new_balance = cash_balance - value_of_buy
+                    update_balance(new_balance, portfolioid)
 
-                write_purchase(stock_symbol, portfolioid, num_shares, current_price)
+                    write_purchase(stock_symbol, portfolioid, num_shares, current_price)
 
-                return redirect(url_for('portfolio_page', portfolioid=portfolioid))
-            else:
-                print("purchase not possible")
+                    return redirect(url_for('portfolio_page', portfolioid=portfolioid))
+                else:
+                    print("purchase not possible")
 
     return render_template('buy_stock.html', portfolio=portfolio_data, msg=stock_name, stock_symbol=stock_symbol, num_shares=num_shares, stock_price=current_price, purchase_cost=value_of_buy, confirmed=confirmed)
 
