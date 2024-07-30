@@ -469,15 +469,18 @@ def portfolio_page(portfolioid):
 
 @app.route('/portfolio/<portfolioid>/add_watchlist', methods=['GET', 'POST'])
 def add_watchlist(portfolioid):
+    erMsg=''
     if request.method == 'POST':
-
         stock_symbol = request.form['stock_symbol']
         stock_symbol = stock_symbol.upper()
         exist, name = get_stock_name_from_symbol(stock_symbol)
         if exist:
             add_stock_to_watchlist(stock_symbol, portfolioid)
             return redirect(url_for('portfolio_page',  portfolioid=portfolioid))
-    return render_template('add_watchlist.html', portfolioid=portfolioid)
+        else:
+            print("invalid stock")
+            erMsg = "Not valid Stock Symbol"
+    return render_template('add_watchlist.html', portfolioid=portfolioid, erMsg=erMsg)
 
 @app.route('/transactions/<portfolioid>', methods=['GET'])
 def transaction_page(portfolioid):

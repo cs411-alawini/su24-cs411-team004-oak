@@ -13,6 +13,9 @@
 <body>
     <h1> </h1>
     <form method="post">
+        {%if erMsg%}
+            <p>{{erMsg}}</p>
+        {%endif%}
         <label for="userid">Stock Symbol:</label>
         <input type="text" id="stock_symbol" name="stock_symbol" required><br>
         <br>
