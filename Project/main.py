@@ -495,6 +495,7 @@ def transaction_page(portfolioid):
 
 @app.route('/sell', methods=['GET','POST'])
 def sell_shares():
+    portfolio_id=''
     if request.form['action'] =='sell':
         transaction_id = request.form.get('transaction_id')
         portfolio_id = request.form.get('portfolio_id')
@@ -518,11 +519,11 @@ def sell_shares():
         sell_stock(transaction_id)
 
         update_balance(new_balance, portfolio_id)
-
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
 @app.route('/remove_watch', methods=['GET','POST'])
 def remove_watch():
+    portfolio_id = ''
     if request.form['action'] =='remove':
         stock_symbol = request.form.get('stock_symbol')
         portfolio_id = request.form.get('portfolio_id')
