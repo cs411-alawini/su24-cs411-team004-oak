@@ -246,6 +246,24 @@ def get_portfolio_type(portfolioid):
             connection.close()
     return False
 
+def get_most_val_stock():
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            CALL ownsMostValStock()
+        """, params=None)
+        return cursor.fetchall()
+    except Error as e:
+        error_message = e.msg
+        print(f"ValStock Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+    return error_message
+
 def get_stats_performers(date_start, date_end):
     connection = None
     try:
@@ -273,7 +291,6 @@ def get_sector_portfolios(sector):
         """, (sector,))
         return cursor.fetchall()
     except Error as e:
-        error_code = e.errno
         error_message = e.msg
         print(f"sector_search Error: {e}")
     finally:
@@ -589,6 +606,8 @@ def stats():
     portfolios=''
     sectorErMsg=''
     sector=''
+    valStocks=get_most_val_stock()
+    print(f'{valStocks=}')
     sectors = get_list_sectors()
     print(f'{sectors=}')
     if 'user' not in session:
@@ -620,7 +639,8 @@ def stats():
                 sectorErMsg = portfolios
                 portfolios =''
 
-    return render_template('stats.html', msg1=msg1, performers=stats_data_performers, keysearch=companyResult,searchErMsg=searchErMsg, sectors=sectors, Sportfolios=portfolios, sectorErMsg=sectorErMsg, sector=sector)
+    return render_template('stats.html', msg1=msg1, performers=stats_data_performers, keysearch=companyResult,searchErMsg=searchErMsg,  
+                           sectors=sectors, Sportfolios=portfolios, sectorErMsg=sectorErMsg, sector=sector, valStocks=valStocks)
 
 def format_date_from_str(datestr):
     input_format = "%Y-%m-%d"

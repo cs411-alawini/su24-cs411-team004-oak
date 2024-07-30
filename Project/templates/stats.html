@@ -71,19 +71,19 @@
             </table>
         {%endif%}
         
-  </article>
-  <article>
-    <form method="post">
-        <h2>Choose to search for portfolios heavy in chosen sector</h2>
-        <label for="sectors">Choose a sector:</label>
-        <select name="sectors" id="sectors">
-            {%if sectors or sectorErMsg%}
-                {%for s in sectors%}
-                    <option value={{s.Sector}}>{{s.Sector}}</option>
-                {%endfor%}
-            {%endif%}
-        </select>
-        <button type="submit" name="action" value="sectors">Search</button>
+    </article>
+    <article>
+        <form method="post">
+            <h2>Choose to search for portfolios heavy in chosen sector</h2>
+            <label for="sectors">Choose a sector:</label>
+            <select name="sectors" id="sectors">
+                {%if sectors or sectorErMsg%}
+                    {%for s in sectors%}
+                        <option value={{s.Sector}}>{{s.Sector}}</option>
+                    {%endfor%}
+                {%endif%}
+            </select>
+            <button type="submit" name="action" value="sectors">Search</button>
         </form>
         {%if sector%}
             <p>Results for {{sector}} Sector</p>
@@ -112,9 +112,30 @@
                     {%endif%}
                 </tbody>
             </table>
-            {%endif%}
-  </article>
-  <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
+        {%endif%}
+    </article>
+    <article>
+        <h2>High Market Cap Investors</h2>
+        {%if valStocks%}
+                <table>
+                    <thead>
+                        <th>UserID</th>
+                        <th>FullName</th>
+                        <th>Count</th>
+                    </thead>
+                    <tbody>
+                        {%for v in valStocks%}
+                            <tr>
+                                <td>{{v.UserID}}</td>
+                                <td>{{v.FullName}}</td>
+                                <td>{{v.anything}}</td>
+                            </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+        {%endif%}
+    </article>
+    <button type="button" onclick="window.location.href='{{ url_for('dashboard', userid=session.user) }}'" class="button-space">Back to Dashboard</button>
 
 </body>
 </html>
