@@ -467,8 +467,6 @@ def get_dashboard_balance(portfolios):
 def add_stock_to_watchlist(stock_symbol, portfolioid):
     connection = None
     try:
-        user_id = session['user']
-        
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("""

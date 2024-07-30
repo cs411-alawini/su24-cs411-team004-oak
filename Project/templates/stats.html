@@ -84,9 +84,11 @@
             {%endif%}
         </select>
         <button type="submit" name="action" value="sectors">Search</button>
-      </form>
-      <p>Results for {{sector}} Sector</p>
-      {%if Sportfolios or sectorErMsg%}
+        </form>
+        {%if sector%}
+            <p>Results for {{sector}} Sector</p>
+        {%endif%}
+        {%if Sportfolios or sectorErMsg%}
             <table>
                 <thead>
                     <th>PortfolioID</th>
