@@ -632,7 +632,12 @@ def buy_stock(portfolioid):
     if request.method == 'POST':
 
         stock_symbol = request.form.get('stock_symbol').upper()
-        num_shares = int(request.form.get('num_shares'))
+        try:
+            num_shares = int(request.form.get('num_shares'))
+        except Exception as e:
+            print("Error, not an int: ", e)
+            num_shares = 0
+            stock_name = "Please enter an integer number of shares"
 
         if 'confirm_stock' in request.form:
 
