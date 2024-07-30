@@ -4,6 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 import sys
 import yfinance as yf
+from datetime import date, datetime
 from decimal import Decimal, ROUND_HALF_UP
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #DO NOT DELETER: need this to work for some reason
@@ -527,7 +528,39 @@ def transaction_page(portfolioid):
     portfolio_type = get_portfolio_type(portfolioid)
     return render_template('transaction.html', transactions=transaction_data, portfolio=portfolio_type)
 
+@app.route('/stats/', methods=['GET', 'POST'])
+def stats():
+    erMsg=''
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+        print(f'{start_date=}')
+        print(f'{end_date=}')
+        erMsg = verify_date_search(start_date, end_date)
+        print(erMsg)
+    
+    return render_template('stats.html', msg=erMsg)
 
+def format_date_from_str(datestr):
+    input_format = "%Y-%m-%d"
+    datetime_type = datetime.strptime(datestr, "%Y-%m-%d")
+    date_type = datetime_type.date()
+    print(date_type)
+    return date_type
+
+def verify_date_search(startdate, enddate):
+    msg=''
+    startdate = format_date_from_str(startdate)
+    enddate = format_date_from_str(enddate)
+    if(enddate < startdate):
+        msg = "End Date needs to be after Start Date"
+    elif(startdate < date(2010,1,4)):
+        msg = "Start Date needs to be after 01-04-2010"
+    elif(enddate > date(2024,7,15)):
+        msg = "End Date needs to be before 07-15-2024"
+    return msg
 
 #main intent is to get the transaction id to modify it
 #idk how to get the transaction data

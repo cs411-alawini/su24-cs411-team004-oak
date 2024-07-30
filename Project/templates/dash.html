@@ -16,6 +16,9 @@
     </style>
 </head>
 <body>
+    <nav>
+        <a href = "{{url_for ('stats')}}">Stats</a>
+    </nav>
     {% if fullname %}
         <h1>Welcome {{fullname}}</h1>
     {% else %}
