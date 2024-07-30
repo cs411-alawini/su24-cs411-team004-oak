@@ -318,6 +318,8 @@ def get_company_search(search_str):
             connection.close()
     return error_message
 
+
+
 def get_fullname(userid):
     connection = None
     try:
@@ -413,7 +415,7 @@ def get_watchlist_data(portfolioid):
 
         user_id = session['user']
 
-        hi_lo_dict = get_hi_lo(user_id, portfolioid)
+        hi_lo_dict = get_hi_lo_sp(portfolioid)
 
         print("this is hi lo:", hi_lo_dict)
 
@@ -725,7 +727,12 @@ def buy_stock(portfolioid):
     if request.method == 'POST':
 
         stock_symbol = request.form.get('stock_symbol').upper()
-        num_shares = int(request.form.get('num_shares'))
+        try:
+            num_shares = int(request.form.get('num_shares'))
+        except Exception as e:
+            print("Error, not an int: ", e)
+            num_shares = 0
+            stock_name = "Please enter an integer number of shares"
 
         if 'confirm_stock' in request.form:
 
@@ -819,7 +826,7 @@ def get_stock_name_from_symbol(stock_symbol):
 
 
 
-def get_hi_lo(user_id, portfolio_id):
+def get_hi_lo(portfolio_id):
     connection = None
     try:
         connection = get_db_connection()
@@ -832,11 +839,34 @@ def get_hi_lo(user_id, portfolio_id):
             JOIN UserPortfolio up ON u.UserID = up.UsersUserID
             JOIN Watchlist w ON up.PortfoliosPortfolioID = w.PortfolioID
             JOIN HistoricalStocks hs ON w.StockSymbol = hs.StockSymbol
-            WHERE u.UserID = %s 
-                AND w.PortfolioID = %s
+            WHERE w.PortfolioID = %s
                 AND hs.Date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
             GROUP BY u.UserID, w.StockSymbol
-                """, (user_id, portfolio_id))
+                """, (portfolio_id))
+        stock_hi_lo = []
+        for row in cursor:
+            stock_hi_lo.append(row)
+
+        hi_lo_dict = {}
+        for symbol, high, low in stock_hi_lo:
+            hi_lo_dict[symbol] = (high, low)
+
+        return hi_lo_dict
+    
+    except Error as e:
+        print(f"get stock name from symbol Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+def get_hi_lo_sp(portfolio_id):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("CALL watchlistMinMax(%s)", (portfolio_id,))
         stock_hi_lo = []
         for row in cursor:
             stock_hi_lo.append(row)
