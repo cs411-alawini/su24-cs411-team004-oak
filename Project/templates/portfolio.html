@@ -100,8 +100,8 @@
                     <tr>
                         <td>{{item.StockSymbol}}</td>
                         <td>{{item.CurrentPrice}}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{{item.High}}</td>
+                        <td>{{item.Low}}</td>
                         <td>
                             <form action="{{ url_for('remove_watch') }}" method="post">
                                 <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
