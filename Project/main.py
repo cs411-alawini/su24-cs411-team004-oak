@@ -615,7 +615,7 @@ def add_watchlist(portfolioid):
             return redirect(url_for('portfolio_page',  portfolioid=portfolioid))
         else:
             print("invalid stock")
-            erMsg = "Not valid Stock Symbol"
+            erMsg = "Not valid Stock Symbol. Please see company selector on Stats page."
     return render_template('add_watchlist.html', portfolioid=portfolioid, erMsg=erMsg)
 
 @app.route('/transactions/<portfolioid>', methods=['GET'])
@@ -803,6 +803,9 @@ def buy_stock(portfolioid):
                 if exists:
                     current_price = get_stock_current_price(stock_symbol)
                     value_of_buy = current_price * num_shares 
+                else:
+                    stock_name += ". Please see company selector on Stats page."
+
                 
                 
                 cash_balance = get_portfolio_type(portfolioid)['PortfolioBalance']
