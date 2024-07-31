@@ -1,3 +1,4 @@
+import time
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
@@ -794,19 +795,22 @@ def buy_stock(portfolioid):
 
 
 def get_stock_current_price(stock_symbol):
-    try:
-        data = yf.download(stock_symbol, period="1d", interval="1m")
 
-        if data.empty:
-            print("No data")
-        else:
-            #gets only the adjusted close
-            watchlist_prices = data['Adj Close'].iloc[-1]
-            current_price = Decimal("{:.2f}".format(watchlist_prices))
+    while True:
+        try:
+            data = yf.download(stock_symbol, period="1d", interval="1m")
+
+            if not data.empty:
+                watchlist_prices = data['Adj Close'].iloc[-1]
+                current_price = Decimal("{:.2f}".format(watchlist_prices))
+                return current_price
+            
+            wait(1)
+
+        except Exception as e:
+            print("Error with yfinance API:", str(e))
     
-        return current_price
-    except Exception as e:
-        print("Error with yfinance API:", str(e))
+
 
 
 def get_stock_name_from_symbol(stock_symbol):
