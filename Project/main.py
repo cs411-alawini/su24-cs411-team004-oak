@@ -90,6 +90,25 @@ def add_user(userid, password, address, phonenumber, fullname):
             connection.close()
     return False
 
+def invite_to_portfolio(userid, portfolioid):
+    connection = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                    INSERT INTO UserPortfolio(UsersUserID, PortfoliosPortfolioID)
+                    VALUES (%s, %s)
+                """, (userid, portfolioid))
+        return "Invited"
+    except Error as e:
+        print(f"AU Error: {e}")
+    finally:
+        if connection and connection.is_connected():
+            connection.commit()
+            cursor.close()
+            connection.close()
+    return ("Invite Failed")
+
 
 # adds new user profile to users table
 def write_purchase(stock_symbol, portfolio_id, num_shares, purchase_price):
@@ -713,6 +732,18 @@ def remove_watch():
         print(f"{stock_symbol=}")
         print(f"{portfolio_id=}")
         remove_from_watch(portfolio_id, stock_symbol)
+    return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
+
+@app.route('/invite_user', methods=['GET','POST'])
+def invite_user():
+    portfolio_id = ''
+    if request.form['action'] =='invite':
+        invitee = request.form.get('invite')
+        portfolio_id = request.form.get('portfolio_id')
+
+        print(f"{invitee=}")
+        print(f"{portfolio_id=}")
+        iMsg = invite_to_portfolio(invitee, portfolio_id)
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
 

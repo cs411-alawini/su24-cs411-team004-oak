@@ -15,14 +15,20 @@
         <a href = "{{url_for ('stats')}}">Stats</a>
         <a href = "{{url_for ('transaction_page', portfolioid=portfolio.PortfolioID)}}">Transactions</a>
     </nav>
-
-    <fieldset class="balance">
-        <legend>Balances</legend>
-        <h2>Stock Value: ${{sbalance}}</h2>
-        <h2>Cash Balance: ${{portfolio.PortfolioBalance}}</h2>
-        <h2>Total: ${{portfolio.PortfolioBalance+sbalance}}</h2>
-    </fieldset>
-
+    <article>
+        <fieldset class="balance">
+            <legend>Balances</legend>
+            <h2>Stock Value: ${{sbalance}}</h2>
+            <h2>Cash Balance: ${{portfolio.PortfolioBalance}}</h2>
+            <h2>Total: ${{portfolio.PortfolioBalance+sbalance}}</h2>
+        </fieldset>
+        <form action="{{url_for('invite_user')}}" method="post">
+            <label for="invite">Invite User:</label>
+            <input width=10% type="text" id="invite" name="invite" required> 
+            <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
+            <button type="submit" name="action" value="invite">Invite</button>
+        </form>
+    </article>
     <article>
         <h1>Current Positions</h1>
         <table>
@@ -101,7 +107,7 @@
                     </tr>
                     {%endfor%}
                 {%else%}
-                    <td>Watchlist is Empty</td>
+                    <td colspan="4">Watchlist is Empty</td>
                 {%endif%}
             </tbody>
         </table>
