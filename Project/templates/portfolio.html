@@ -22,11 +22,14 @@
             <h2>Cash Balance: ${{portfolio.PortfolioBalance}}</h2>
             <h2>Total: ${{portfolio.PortfolioBalance+sbalance}}</h2>
         </fieldset>
-        <form action="{{url_for('invite_user')}}" method="post">
+        <form method="post">
             <label for="invite">Invite User:</label>
             <input width=10% type="text" id="invite" name="invite" required> 
             <input type="hidden" name="portfolio_id" value="{{ portfolio.PortfolioID }}">
             <button type="submit" name="action" value="invite">Invite</button>
+            {%if iMsg%}
+                <p>{{iMsg}}</p>
+            {%endif%}
         </form>
     </article>
     <article>

@@ -590,8 +590,9 @@ def create_portfolio():
     return render_template('create_portfolio.html')
 
 
-@app.route('/portfolio/<portfolioid>', methods=['GET'])
+@app.route('/portfolio/<portfolioid>', methods=['GET', 'POST'])
 def portfolio_page(portfolioid):
+    iMsg = ''
     if 'user' not in session:
         return redirect(url_for('login'))
     transaction_data = get_transaction_data(portfolioid)
@@ -599,8 +600,17 @@ def portfolio_page(portfolioid):
     portfolio_data = get_portfolio_type(portfolioid)
     watchlist_data = get_watchlist_data(portfolioid)
     sbalance = get_stock_value_balance(transaction_data)
-    print(portfolio_data)
-    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance)
+    print(f'{portfolio_data}')
+    if request.method == 'POST':
+        if request.form['action'] =='invite':
+            invitee = request.form['invite']
+            portfolio_id = request.form['portfolio_id']
+
+            print(f"{invitee=}")
+            print(f"{portfolio_id=}")
+            iMsg = invite_to_portfolio(invitee, portfolio_id)
+            print(f'{iMsg}')
+    return render_template('portfolio.html', transactions=transaction_data, watchlist=watchlist_data, portfolio=portfolio_data, sbalance=sbalance, iMsg=iMsg)
 
 
 @app.route('/portfolio/<portfolioid>/add_watchlist', methods=['GET', 'POST'])
@@ -734,17 +744,17 @@ def remove_watch():
         remove_from_watch(portfolio_id, stock_symbol)
     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
-@app.route('/invite_user', methods=['GET','POST'])
-def invite_user():
-    portfolio_id = ''
-    if request.form['action'] =='invite':
-        invitee = request.form.get('invite')
-        portfolio_id = request.form.get('portfolio_id')
+# @app.route('/invite_user', methods=['GET','POST'])
+# def invite_user():
+#     portfolio_id = ''
+#     if request.form['action'] =='invite':
+#         invitee = request.form.get('invite')
+#         portfolio_id = request.form.get('portfolio_id')
 
-        print(f"{invitee=}")
-        print(f"{portfolio_id=}")
-        iMsg = invite_to_portfolio(invitee, portfolio_id)
-    return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
+#         print(f"{invitee=}")
+#         print(f"{portfolio_id=}")
+#         iMsg = invite_to_portfolio(invitee, portfolio_id)
+#     return redirect(url_for('portfolio_page', portfolioid=portfolio_id))
 
 
 
