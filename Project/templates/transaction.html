@@ -12,7 +12,7 @@
     {% else %}
         <h1>Transaction History</h1>
     {%endif%}
-    <table border="1">
+    <table>
         <thead>
             <tr>
                 <th>Stock</th>
@@ -33,7 +33,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="3">No portfolios found.</td>
+                    <td colspan="3">No transactions found.</td>
                 </tr>
             {% endif %}
         </tbody>

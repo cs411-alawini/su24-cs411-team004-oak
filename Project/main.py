@@ -780,6 +780,8 @@ def buy_stock(portfolioid):
             else: 
                 exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
+                stock_name += ". Please see company selector on Stats page."
+
                 if exists:
                     current_price = get_stock_current_price(stock_symbol)
                     value_of_buy = current_price * num_shares 
@@ -836,7 +838,7 @@ def get_stock_current_price(stock_symbol):
                 current_price = Decimal("{:.2f}".format(watchlist_prices))
                 return current_price
             
-            wait(1)
+            time.sleep(1)
 
         except Exception as e:
             print("Error with yfinance API:", str(e))
