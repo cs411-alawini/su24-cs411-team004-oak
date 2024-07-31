@@ -780,8 +780,6 @@ def buy_stock(portfolioid):
             else: 
                 exists, stock_name = get_stock_name_from_symbol(stock_symbol)
 
-                stock_name += ". Please see company selector on Stats page."
-
                 if exists:
                     current_price = get_stock_current_price(stock_symbol)
                     value_of_buy = current_price * num_shares 
@@ -791,6 +789,9 @@ def buy_stock(portfolioid):
                         confirmed = True
                     else:
                         stock_name = "Not enough cash for purchase:"
+                else:
+                    stock_name += ". Please see company selector on Stats page."
+
             
         elif 'place_order' in request.form:
 
